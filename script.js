@@ -12,11 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const formMessage = document.getElementById('form-message');
     const guestNameElement = document.getElementById('guest-name');
     const confirmGuestName = document.getElementById('confirm-guest-name');
+    const nameInput = document.getElementById('name');
     const loading = document.getElementById('loading');
     
     // Variabel state
     let currentSlide = 0;
-    let isMusicPlaying = true;
+    let isMusicPlaying = false;
     let isSubmitting = false;
     
     // URL Google Apps Script
@@ -108,6 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update judul halaman
         document.title = `Undangan Pertunangan - Untuk ${guestName}`;
         
+        // Pre-fill nama di form
+        if (nameInput && !nameInput.value) {
+            nameInput.value = guestName;
+        }
+        
         return guestName;
     }
     
@@ -121,9 +127,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // FUNGSI BARU: Coba mulai musik dengan berbagai strategi
+    // ===== FUNGSI MUSIK =====
+    // Fungsi untuk memulai musik dengan berbagai strategi
     function startBackgroundMusic() {
-        if (!backgroundMusic) return;
+        if (!backgroundMusic) {
+            console.error('Elemen audio tidak ditemukan');
+            return;
+        }
+        
+        console.log('Mencoba memulai musik...');
         
         // Set volume (50% agar tidak terlalu keras)
         backgroundMusic.volume = 0.5;
@@ -138,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Musik berhasil dimulai');
                     isMusicPlaying = true;
                     updateMusicButton();
+                    hideMusicTooltip();
                 })
                 .catch(error => {
                     // Autoplay diblokir oleh browser
@@ -146,12 +159,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateMusicButton();
                     
                     // Tampilkan instruksi
-                    showMusicInstruction();
+                    showMusicTooltip();
                 });
         }
     }
     
-    // FUNGSI BARU: Update tampilan tombol musik
+    // Update tampilan tombol musik
     function updateMusicButton() {
         if (!musicToggle) return;
         
@@ -164,39 +177,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // FUNGSI BARU: Tampilkan instruksi musik
-    function showMusicInstruction() {
-        // Tambahkan tooltip atau pesan
+    // Tampilkan tooltip instruksi musik
+    function showMusicTooltip() {
+        // Cek apakah sudah ada tooltip
+        if (document.querySelector('.music-tooltip')) return;
+        
         const musicTooltip = document.createElement('div');
         musicTooltip.className = 'music-tooltip';
         musicTooltip.innerHTML = '<p><i class="fas fa-info-circle"></i> Klik tombol musik untuk memutar</p>';
-        musicTooltip.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: rgba(139, 0, 0, 0.9);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            z-index: 1001;
-            animation: fadeIn 0.5s ease;
-        `;
         
+        // Tambahkan ke DOM
         document.body.appendChild(musicTooltip);
         
         // Hapus setelah 5 detik
         setTimeout(() => {
-            if (musicTooltip.parentNode) {
-                musicTooltip.style.opacity = '0';
-                musicTooltip.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => {
-                    if (musicTooltip.parentNode) {
-                        musicTooltip.parentNode.removeChild(musicTooltip);
-                    }
-                }, 500);
-            }
+            hideMusicTooltip();
         }, 5000);
+    }
+    
+    // Sembunyikan tooltip musik
+    function hideMusicTooltip() {
+        const tooltip = document.querySelector('.music-tooltip');
+        if (tooltip && tooltip.parentNode) {
+            tooltip.parentNode.removeChild(tooltip);
+        }
     }
     
     // Fungsi untuk toggle musik
@@ -214,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(() => {
                         console.log('Musik dimulai setelah klik');
                         updateMusicButton();
+                        hideMusicTooltip();
                     })
                     .catch(error => {
                         console.log('Gagal memutar musik:', error);
@@ -227,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // ===== FUNGSI SLIDE NAVIGATION =====
     // Fungsi untuk mengganti slide
     function goToSlide(slideIndex) {
         // Validasi indeks slide
@@ -277,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Fungsi untuk handle swipe/touch
+    // ===== FUNGSI TOUCH/SWIPE =====
     let touchStartY = 0;
     let touchEndY = 0;
     
@@ -304,6 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // ===== FUNGSI FORM SUBMISSION =====
     // Fungsi untuk submit form konfirmasi
     async function submitForm(event) {
         event.preventDefault();
@@ -371,6 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
     
+    // ===== FUNGSI UTILITY =====
     // Fungsi untuk simulasi loading
     function simulateLoading() {
         if (!loading) return;
@@ -383,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
     
-    // Inisialisasi event listeners
+    // ===== INISIALISASI EVENT LISTENERS =====
     function initEventListeners() {
         // Tombol navigasi
         if (prevBtn) {
@@ -440,22 +448,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Event listener untuk memulai musik setelah interaksi pengguna
-        document.body.addEventListener('click', function initMusicOnInteraction() {
+        // Gunakan beberapa event untuk meningkatkan kemungkinan
+        const startMusicOnInteraction = function() {
             if (!isMusicPlaying) {
+                console.log('Interaksi terdeteksi, mencoba memutar musik...');
                 startBackgroundMusic();
+                // Hapus event listeners setelah berhasil
+                document.body.removeEventListener('click', startMusicOnInteraction);
+                document.body.removeEventListener('touchstart', startMusicOnInteraction);
+                document.body.removeEventListener('keydown', startMusicOnInteraction);
             }
-        }, { once: true });
+        };
         
-        // Coba mulai musik saat halaman selesai dimuat
-        window.addEventListener('load', function() {
-            setTimeout(startBackgroundMusic, 500);
-        });
+        // Tambahkan event listeners untuk berbagai jenis interaksi
+        document.body.addEventListener('click', startMusicOnInteraction);
+        document.body.addEventListener('touchstart', startMusicOnInteraction);
+        document.body.addEventListener('keydown', startMusicOnInteraction);
     }
     
-    // Inisialisasi aplikasi
+    // ===== INISIALISASI APLIKASI =====
     function initApp() {
-        // Sembunyikan loading
-        simulateLoading();
+        console.log('Menginisialisasi aplikasi...');
         
         // Setup nama tamu
         setupGuestName();
@@ -469,8 +482,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update tombol musik
         updateMusicButton();
         
+        // Sembunyikan loading
+        simulateLoading();
+        
         // Coba mulai musik segera setelah inisialisasi
-        setTimeout(startBackgroundMusic, 300);
+        // Browser modern biasanya membutuhkan interaksi pengguna terlebih dahulu
+        console.log('Mencoba memutar musik otomatis...');
+        setTimeout(() => {
+            startBackgroundMusic();
+        }, 500);
     }
     
     // Jalankan inisialisasi aplikasi
