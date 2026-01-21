@@ -121,6 +121,9 @@
             }
         });
     </script>
+    
+    <!-- Preload musik untuk mengurangi delay -->
+    <link rel="preload" href="musikbelakang.mp3" as="audio" type="audio/mpeg">
 </head>
 <body>
     <!-- Audio Player untuk Musik -->
@@ -129,8 +132,11 @@
             <i class="fas fa-volume-up"></i>
             <span>Musik: ON</span>
         </button>
-        <audio id="background-music" loop>
-            <source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_3c7c4f2f0f.mp3?filename=romantic-piano-amp-strings-version-60s-11743.mp3" type="audio/mpeg">
+        <audio id="background-music" loop preload="auto">
+            <!-- Gunakan file musik dari repository GitHub -->
+            <source src="musikbelakang.mp3" type="audio/mpeg">
+            <source src="musikbelakang.ogg" type="audio/ogg">
+            <source src="musikbelakang.wav" type="audio/wav">
             Browser Anda tidak mendukung elemen audio.
         </audio>
     </div>
