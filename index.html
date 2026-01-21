@@ -3,11 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Undangan Pertunangan - Ammazonia Diva & Eka Ardi</title>
+    <title>Undangan Pertunangan - Ammazonia Diva & Eka Lazarus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+    
+    <!-- Script untuk parse URL parameter dengan format nama kapital -->
+    <script>
+        // Fungsi untuk format nama dengan kapital setiap kata
+        function formatName(name) {
+            if (!name || typeof name !== 'string') return '';
+            
+            // Ubah ke huruf kecil dulu, lalu kapitalkan setiap kata
+            return name.toLowerCase()
+                .split(/[\s\-_\+\.]+/) // Pisah berdasarkan spasi, -, _, +, atau .
+                .map(word => {
+                    // Skip kata penghubung yang pendek (biarkan huruf kecil)
+                    const shortWords = ['di', 'ke', 'dari', 'dan', 'atau', 'yang', 'untuk', 'pada', 'dengan'];
+                    if (shortWords.includes(word)) {
+                        return word;
+                    }
+                    
+                    // Handle nama dengan apostrof (contoh: O'Brian)
+                    if (word.includes("'")) {
+                        return word.split("'")
+                            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                            .join("'");
+                    }
+                    
+                    // Kapitalkan kata biasa
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                })
+                .join(' ')
+                .trim();
+        }
+        
+        // Fungsi untuk ambil parameter dari URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        
+        // Fungsi untuk ambil nama dari path setelah slash
+        function getNameFromPath() {
+            var path = window.location.pathname;
+            // Hapus "/Diva-Eka-together/" dari path
+            path = path.replace('/Diva-Eka-together/', '');
+            path = path.replace('/Diva-Eka-together', '');
+            path = path.replace('/', '');
+            
+            // Decode URL dan hapus ekstensi .html jika ada
+            if (path) {
+                path = decodeURIComponent(path);
+                path = path.replace('.html', '');
+                path = path.replace(/%20/g, ' ');
+                path = path.replace(/\+/g, ' ');
+                
+                // Format nama dengan kapital
+                return formatName(path);
+            }
+            return '';
+        }
+        
+        // Cek parameter dan simpan di sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            var namaParam = getUrlParameter('nama') || getUrlParameter('name') || getUrlParameter('to');
+            var namaPath = getNameFromPath();
+            
+            var guestName = '';
+            
+            // Gunakan parameter URL terlebih dahulu, lalu path
+            if (namaParam) {
+                guestName = formatName(namaParam);
+            } else if (namaPath) {
+                guestName = namaPath;
+            }
+            
+            if (guestName) {
+                // Simpan untuk digunakan nanti
+                sessionStorage.setItem('guestName', guestName);
+                
+                // Update title
+                document.title = 'Undangan Pertunangan - Untuk ' + guestName;
+                
+                // Update langsung di halaman jika elemen ada
+                var guestElement = document.getElementById('guest-name');
+                var confirmElement = document.getElementById('confirm-guest-name');
+                var nameInput = document.getElementById('name');
+                
+                if (guestElement) {
+                    guestElement.textContent = guestName;
+                }
+                if (confirmElement) {
+                    confirmElement.textContent = guestName;
+                }
+                if (nameInput) {
+                    nameInput.value = guestName;
+                    nameInput.placeholder = guestName; // Update placeholder juga
+                }
+            } else {
+                // Default jika tidak ada parameter
+                var defaultName = "Keluarga & Sahabat";
+                sessionStorage.setItem('guestName', defaultName);
+                
+                var guestElement = document.getElementById('guest-name');
+                var confirmElement = document.getElementById('confirm-guest-name');
+                
+                if (guestElement) {
+                    guestElement.textContent = defaultName;
+                }
+                if (confirmElement) {
+                    confirmElement.textContent = defaultName;
+                }
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- Audio Player untuk Musik -->
@@ -39,7 +152,7 @@
                 <div class="batik-top"></div>
                 <div class="slide-inner">
                     <div class="couple-names">
-                        <h1 class="name-jawa">ꦲꦩ꧀ꦩꦺꦴꦱꦺꦴꦤꦶꦪꦭꦺꦴꦂꦢꦶꦮꦫꦾꦤ꧀ꦠꦺꦴꦤꦺꦴ</h1>
+                        <h1 class="name-jawa">ꦲꦩ꧀ꦩꦺꦴꦱꦺꦴꦤꦶꦪꦭꦺꦴꦂꦝꦶꦮꦫꦾꦤ꧀ꦠꦺꦴꦤꦺꦴ</h1>
                         <h1 class="name-main">Ammazonia Diva Riyantono</h1>
                         <div class="and-symbol">
                             <div class="circle"></div>
@@ -71,7 +184,7 @@
             <div class="slide-content">
                 <div class="slide-inner">
                     <div class="guest-section">
-                        <h2 class="section-title">ꦲꦸꦤ꧀ꦝꦔꦤ꧀ꦤꦤ꧀ꦏꦁꦒꦺꦴꦩꦸꦤ꧀ꦢꦁꦩꦸꦭꦾ</h2>
+                        <h2 class="section-title">ꦲꦸꦤ꧀ꦝꦔꦤ꧀ꦤꦤ꧀ꦏꦁꦒꦺꦴꦩꦸꦤ꧀ꦝꦁꦩꦸꦭꦾ</h2>
                         <h2 class="section-title">Undangan Untuk</h2>
                         
                         <div class="guest-card">
@@ -159,7 +272,6 @@
                                 <i class="fas fa-map-marked-alt"></i>
                                 <p>Peta Lokasi Acara</p>
                             </div>
-                            <!-- Ganti dengan embed Google Maps yang sesuai -->
                             <div class="map-frame">
                                 <iframe 
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.314182207889!2d112.63027631415637!3d-7.966446794257326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd62822063dc2fb%3A0x78879446481a4da2!2sMalang%20City%20Hall!5e0!3m2!1sen!2sid!4v1647858284788!5m2!1sen!2sid" 
@@ -175,7 +287,8 @@
                         <div class="address-details">
                             <h3><i class="fas fa-store"></i> Ayam Goreng Balaikota Malang</h3>
                             <p><i class="fas fa-location-dot"></i> Jl. Merdeka Selatan No. 1, Klojen, Kota Malang, Jawa Timur 65111</p>
-                             <p><i class="fas fa-car"></i> Parkir tersedia di area depan restoran</p>
+                            <p><i class="fas fa-phone"></i> (0341) 362 123</p>
+                            <p><i class="fas fa-car"></i> Parkir tersedia di area depan restoran</p>
                         </div>
                         
                         <div class="instruction">
@@ -200,7 +313,7 @@
                         <div class="prayer-message">
                             <p>Kehadiran dan doa restu dari <span id="confirm-guest-name">Saudara/i</span> sangat berarti bagi kami.</p>
                             <p class="jawa-text">ꦩꦠꦸꦂꦤꦸꦮꦸꦤ꧀ꦱꦸꦮꦸꦤ꧀ꦲꦶꦁꦒꦼꦃꦩꦺꦔꦺꦴꦤ꧀ꦗꦸꦁꦥꦶꦤꦺꦂꦱꦏꦺꦤ꧀ꦠꦼꦤꦤꦶꦁꦏꦧꦼꦂꦏꦃꦲꦤꦺꦴꦩꦃꦭꦸꦩꦶꦤꦺꦠꦼꦂꦫꦶꦩꦾꦤꦼꦩ꧀ꦧꦃꦲꦏꦺꦤ꧀ꦱꦸꦏꦼꦠꦼꦤꦁꦒꦿꦺꦴꦩꦺꦴꦁꦩꦸꦭꦾ</p>
-                            <p>Matur nuwun sanget atas doa dan restu yang diberikan. Tuhan membalas segala kebaikan dengan berlipat ganda.</p>
+                            <p>Matur nuwun sanget atas doa dan restu yang diberikan. Semoga Tuhan membalas segala kebaikan dengan berlipat ganda.</p>
                         </div>
                         
                         <div class="confirmation-form">
@@ -209,7 +322,7 @@
                             <form id="attendance-form">
                                 <div class="form-group">
                                     <label for="name"><i class="fas fa-user"></i> Nama Lengkap</label>
-                                    <input type="text" id="name" name="name" required placeholder="Masukkan nama lengkap">
+                                    <input type="text" id="name" name="name" required placeholder="Nama akan terisi otomatis">
                                 </div>
                                 
                                 <div class="form-group">
@@ -233,6 +346,10 @@
                                         <i class="fas fa-paper-plane"></i> Kirim Konfirmasi
                                     </button>
                                 </div>
+                                
+                                <div class="form-note">
+                                    <p><i class="fas fa-info-circle"></i> Nama telah diisi otomatis. Silakan edit jika perlu.</p>
+                                </div>
                             </form>
                             
                             <div id="form-message" class="form-message"></div>
@@ -240,7 +357,7 @@
                         
                         <div class="closing-note">
                             <p>Terima kasih atas perhatian dan waktu yang diberikan.</p>
-                            <p class="couple-signature">Ammazonia Diva & Eka Ardi</p>
+                            <p class="couple-signature">Ammazonia Diva & Eka Lazarus</p>
                         </div>
                     </div>
                 </div>
