@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pertunangan - Ammazonia Diva & Eka Ardi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+</head>
+<body>
+    <!-- Audio Player untuk Musik -->
+    <div class="audio-controls">
+        <button id="music-toggle" class="music-btn">
+            <i class="fas fa-volume-up"></i>
+            <span>Musik: ON</span>
+        </button>
+        <audio id="background-music" loop>
+            <source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_3c7c4f2f0f.mp3?filename=romantic-piano-amp-strings-version-60s-11743.mp3" type="audio/mpeg">
+            Browser Anda tidak mendukung elemen audio.
+        </audio>
+    </div>
+
+    <!-- Indikator Slide -->
+    <div class="slide-indicators">
+        <div class="indicator active" data-slide="1"></div>
+        <div class="indicator" data-slide="2"></div>
+        <div class="indicator" data-slide="3"></div>
+        <div class="indicator" data-slide="4"></div>
+        <div class="indicator" data-slide="5"></div>
+    </div>
+
+    <!-- Container untuk semua slide -->
+    <div class="slides-container">
+        <!-- Slide 1: Nama Pertunangan -->
+        <section class="slide active" id="slide1">
+            <div class="slide-content">
+                <div class="batik-top"></div>
+                <div class="slide-inner">
+                    <div class="couple-names">
+                        <h1 class="name-jawa">ꦲꦩ꧀ꦩꦺꦴꦱꦺꦴꦤꦶꦪꦭꦺꦴꦂꦢꦶꦮꦫꦾꦤ꧀ꦠꦺꦴꦤꦺꦴ</h1>
+                        <h1 class="name-main">Ammazonia Diva Riyantono</h1>
+                        <div class="and-symbol">
+                            <div class="circle"></div>
+                            <span>&</span>
+                            <div class="circle"></div>
+                        </div>
+                        <h1 class="name-jawa">ꦌꦏꦄꦂꦣꦶꦭꦲ꦳ꦱꦫꦸꦱ꧀</h1>
+                        <h1 class="name-main">Eka Ardi Lazarus</h1>
+                    </div>
+                    
+                    <div class="engagement-info">
+                        <p class="subtitle">Pertunangan</p>
+                        <p class="date">25 April 2026</p>
+                    </div>
+                    
+                    <div class="instruction">
+                        <p>Buka undangan dengan menggeser ke atas</p>
+                        <div class="scroll-icon">
+                            <i class="fas fa-chevron-up"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="batik-bottom"></div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Nama Tamu Undangan -->
+        <section class="slide" id="slide2">
+            <div class="slide-content">
+                <div class="slide-inner">
+                    <div class="guest-section">
+                        <h2 class="section-title">ꦲꦸꦤ꧀ꦝꦔꦤ꧀ꦤꦤ꧀ꦏꦁꦒꦺꦴꦩꦸꦤ꧀ꦢꦁꦩꦸꦭꦾ</h2>
+                        <h2 class="section-title">Undangan Untuk</h2>
+                        
+                        <div class="guest-card">
+                            <div class="guest-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="guest-name-container">
+                                <p class="guest-label">Saudara/i tercinta</p>
+                                <h3 id="guest-name" class="guest-name">Keluarga & Sahabat</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="invitation-message">
+                            <p>Dengan penuh sukacita dan kebahagiaan, kami mengundang Anda untuk hadir dalam acara pertunangan kami.</p>
+                            <p>Kehadiran dan doa restu Anda merupakan kehormatan bagi kami.</p>
+                        </div>
+                        
+                        <div class="instruction">
+                            <p>Geser untuk melihat waktu & tempat acara</p>
+                            <div class="scroll-icon">
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Waktu dan Tempat -->
+        <section class="slide" id="slide3">
+            <div class="slide-content">
+                <div class="slide-inner">
+                    <div class="time-place-section">
+                        <h2 class="section-title">ꦮꦏ꧀ꦠꦸꦭꦤ꧀ꦠꦼꦩ꧀ꦥꦠ꧀</h2>
+                        <h2 class="section-title">Waktu & Tempat</h2>
+                        
+                        <div class="time-card">
+                            <div class="time-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="time-details">
+                                <p class="day">Hari Sabtu</p>
+                                <p class="date">25 April 2026</p>
+                                <p class="time">Pukul 10.00 - 13.00 WIB</p>
+                            </div>
+                        </div>
+                        
+                        <div class="place-card">
+                            <div class="place-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="place-details">
+                                <h3 class="place-name">Ayam Goreng Balaikota</h3>
+                                <p class="place-address">Malang, Jawa Timur</p>
+                            </div>
+                        </div>
+                        
+                        <div class="instruction">
+                            <p>Geser untuk melihat peta lokasi</p>
+                            <div class="scroll-icon">
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="floral-decoration">
+                            <div class="flower"></div>
+                            <div class="flower"></div>
+                            <div class="flower"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Peta Lokasi -->
+        <section class="slide" id="slide4">
+            <div class="slide-content">
+                <div class="slide-inner">
+                    <div class="location-section">
+                        <h2 class="section-title">ꦭꦺꦴꦏꦱꦶꦭꦤ꧀ꦥꦼꦠꦼꦁ</h2>
+                        <h2 class="section-title">Lokasi & Peta</h2>
+                        
+                        <div class="map-container">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <p>Peta Lokasi Acara</p>
+                            </div>
+                            <!-- Ganti dengan embed Google Maps yang sesuai -->
+                            <div class="map-frame">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.314182207889!2d112.63027631415637!3d-7.966446794257326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd62822063dc2fb%3A0x78879446481a4da2!2sMalang%20City%20Hall!5e0!3m2!1sen!2sid!4v1647858284788!5m2!1sen!2sid" 
+                                    width="100%" 
+                                    height="250" 
+                                    style="border:0;" 
+                                    allowfullscreen="" 
+                                    loading="lazy">
+                                </iframe>
+                            </div>
+                        </div>
+                        
+                        <div class="address-details">
+                            <h3><i class="fas fa-store"></i> Ayam Goreng Balaikota Malang</h3>
+                            <p><i class="fas fa-location-dot"></i> Jl. Merdeka Selatan No. 1, Klojen, Kota Malang, Jawa Timur 65111</p>
+                             <p><i class="fas fa-car"></i> Parkir tersedia di area depan restoran</p>
+                        </div>
+                        
+                        <div class="instruction">
+                            <p>Geser untuk konfirmasi kehadiran</p>
+                            <div class="scroll-icon">
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Konfirmasi Kehadiran -->
+        <section class="slide" id="slide5">
+            <div class="slide-content">
+                <div class="slide-inner">
+                    <div class="confirmation-section">
+                        <h2 class="section-title">ꦏꦺꦴꦤ꧀ꦥ꦳ꦶꦂꦩꦱꦶꦭꦤ꧀ꦢꦺꦴꦲꦼꦁꦫꦺꦱ꧀ꦠꦸ</h2>
+                        <h2 class="section-title">Konfirmasi & Doa Restu</h2>
+                        
+                        <div class="prayer-message">
+                            <p>Kehadiran dan doa restu dari <span id="confirm-guest-name">Saudara/i</span> sangat berarti bagi kami.</p>
+                            <p class="jawa-text">ꦩꦠꦸꦂꦤꦸꦮꦸꦤ꧀ꦱꦸꦮꦸꦤ꧀ꦲꦶꦁꦒꦼꦃꦩꦺꦔꦺꦴꦤ꧀ꦗꦸꦁꦥꦶꦤꦺꦂꦱꦏꦺꦤ꧀ꦠꦼꦤꦤꦶꦁꦏꦧꦼꦂꦏꦃꦲꦤꦺꦴꦩꦃꦭꦸꦩꦶꦤꦺꦠꦼꦂꦫꦶꦩꦾꦤꦼꦩ꧀ꦧꦃꦲꦏꦺꦤ꧀ꦱꦸꦏꦼꦠꦼꦤꦁꦒꦿꦺꦴꦩꦺꦴꦁꦩꦸꦭꦾ</p>
+                            <p>Matur nuwun sanget atas doa dan restu yang diberikan. Tuhan membalas segala kebaikan dengan berlipat ganda.</p>
+                        </div>
+                        
+                        <div class="confirmation-form">
+                            <h3><i class="fas fa-clipboard-check"></i> Konfirmasi Kehadiran</h3>
+                            
+                            <form id="attendance-form">
+                                <div class="form-group">
+                                    <label for="name"><i class="fas fa-user"></i> Nama Lengkap</label>
+                                    <input type="text" id="name" name="name" required placeholder="Masukkan nama lengkap">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="attendance"><i class="fas fa-user-friends"></i> Jumlah Hadir</label>
+                                    <select id="attendance" name="attendance" required>
+                                        <option value="" disabled selected>Pilih jumlah orang</option>
+                                        <option value="1">1 Orang</option>
+                                        <option value="2">2 Orang</option>
+                                        <option value="3">3 Orang</option>
+                                        <option value="4">4 Orang</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="message"><i class="fas fa-comment-dots"></i> Ucapan & Doa (Opsional)</label>
+                                    <textarea id="message" name="message" rows="3" placeholder="Tuliskan ucapan dan doa restu untuk kami..."></textarea>
+                                </div>
+                                
+                                <div class="form-buttons">
+                                    <button type="submit" class="submit-btn">
+                                        <i class="fas fa-paper-plane"></i> Kirim Konfirmasi
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div id="form-message" class="form-message"></div>
+                        </div>
+                        
+                        <div class="closing-note">
+                            <p>Terima kasih atas perhatian dan waktu yang diberikan.</p>
+                            <p class="couple-signature">Ammazonia Diva & Eka Ardi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigasi -->
+    <button id="prev-btn" class="nav-btn prev-btn">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button id="next-btn" class="nav-btn next-btn">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Memuat...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
