@@ -27,6 +27,93 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
+
+     // Fungsi untuk mendapatkan nama dari URL atau path
+    function getGuestNameFromURL() {
+        // Coba ambil dari sessionStorage dulu
+        let guestName = sessionStorage.getItem('guestName');
+        
+        if (!guestName) {
+            // Fungsi untuk ambil parameter dari URL
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+            
+            // Fungsi untuk ambil nama dari path setelah slash
+            function getNameFromPath() {
+                var path = window.location.pathname;
+                // Hapus "/Diva-Eka-together/" dari path
+                path = path.replace('/Diva-Eka-together/', '');
+                path = path.replace('/Diva-Eka-together', '');
+                path = path.replace('/', '');
+                
+                // Decode URL dan hapus ekstensi .html jika ada
+                if (path) {
+                    path = decodeURIComponent(path);
+                    path = path.replace('.html', '');
+                    path = path.replace(/%20/g, ' ');
+                    path = path.replace(/\+/g, ' ');
+                    
+                    // Jika ada tanda "-" ganti dengan spasi
+                    path = path.replace(/-/g, ' ');
+                    
+                    // Capitalize setiap kata
+                    if (path) {
+                        return path.split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ');
+                    }
+                }
+                return '';
+            }
+            
+            // Coba dari parameter URL terlebih dahulu
+            guestName = getUrlParameter('nama') || getUrlParameter('name') || getUrlParameter('to');
+            
+            // Jika tidak ada dari parameter, coba dari path
+            if (!guestName) {
+                guestName = getNameFromPath();
+            }
+            
+            // Jika masih tidak ada, gunakan default
+            if (!guestName) {
+                guestName = "Keluarga & Sahabat";
+            }
+            
+            // Simpan di sessionStorage
+            sessionStorage.setItem('guestName', guestName);
+        }
+        
+        return guestName;
+    }
+
+     // Fungsi untuk mengatur nama tamu
+    function setupGuestName() {
+        const guestName = getGuestNameFromURL();
+        
+        // Update di Slide 2 (Undangan Untuk)
+        if (guestNameElement) {
+            guestNameElement.textContent = guestName;
+        }
+        
+        // Update di Slide 5 (Konfirmasi)
+        if (confirmGuestName) {
+            confirmGuestName.textContent = guestName;
+        }
+        
+        // Update judul halaman
+        document.title = `Undangan Pertunangan - Untuk ${guestName}`;
+        
+        // Pre-fill nama di form jika input tersedia
+        if (nameInput && !nameInput.value) {
+            nameInput.value = guestName;
+        }
+        
+        return guestName;
+    }
     
     // Inisialisasi nama tamu dari URL
     function initializeGuestName() {
