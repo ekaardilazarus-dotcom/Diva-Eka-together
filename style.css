@@ -857,3 +857,23 @@ body {
         padding: 10px;
     }
 }
+
+/* Tambahan untuk form note */
+.form-note {
+    background-color: rgba(212, 175, 55, 0.1);
+    border-left: 3px solid var(--jawa-gold);
+    padding: 10px 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: var(--jawa-brown);
+}
+
+.form-note i {
+    color: var(--maroon);
+    margin-right: 8px;
+}
+
+.form-note p {
+    margin: 0;
+}
