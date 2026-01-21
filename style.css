@@ -1,404 +1,879 @@
-// script.js - Logika untuk Website Undangan Pertunangan
+/* Reset dan Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Elemen DOM
-    const slides = document.querySelectorAll('.slide');
-    const indicators = document.querySelectorAll('.indicator');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const musicToggle = document.getElementById('music-toggle');
-    const backgroundMusic = document.getElementById('background-music');
-    const attendanceForm = document.getElementById('attendance-form');
-    const formMessage = document.getElementById('form-message');
-    const guestNameElement = document.getElementById('guest-name');
-    const confirmGuestName = document.getElementById('confirm-guest-name');
-    const loading = document.getElementById('loading');
-    
-    // Variabel state
-    let currentSlide = 0;
-    let isMusicPlaying = true;
-    let isSubmitting = false;
-    
-    // URL Google Apps Script
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyWFnx1sPlAsSRNzAzYlLdfdNtwlOlxD9UZg_c71Lg6Xjf0sVI15n1l17wzGc3LiqDN/exec';
-    
-    // Fungsi untuk format nama dengan kapital setiap kata
-    function formatName(name) {
-        if (!name || typeof name !== 'string') return '';
-        
-        // Ubah ke huruf kecil dulu, lalu kapitalkan setiap kata
-        return name.toLowerCase()
-            .split(/[\s\-_\+\.]+/) // Pisah berdasarkan spasi, -, _, +, atau .
-            .map(word => {
-                // Skip kata penghubung yang pendek (biarkan huruf kecil)
-                const shortWords = ['di', 'ke', 'dari', 'dan', 'atau', 'yang', 'untuk', 'pada', 'dengan'];
-                if (shortWords.includes(word)) {
-                    return word;
-                }
-                
-                // Handle nama dengan apostrof (contoh: O'Brian)
-                if (word.includes("'")) {
-                    return word.split("'")
-                        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-                        .join("'");
-                }
-                
-                // Kapitalkan kata biasa
-                return word.charAt(0).toUpperCase() + word.slice(1);
-            })
-            .join(' ')
-            .trim();
+:root {
+    --maroon: #8B0000;
+    --dark-maroon: #5A0000;
+    --dark-purple: #4A235A;
+    --light-purple: #6C3483;
+    --jawa-gold: #D4AF37;
+    --jawa-cream: #F7F3E3;
+    --jawa-brown: #6D4C41;
+    --jawa-green: #2E7D32;
+    --fresh-mint: #A7FFEB;
+    --light-bg: #FFF9F0;
+    --text-dark: #333333;
+    --text-light: #FFFFFF;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(74, 35, 90, 0.05) 0%, transparent 20%);
+}
+
+/* Pola batik dekoratif */
+.batik-top, .batik-bottom {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    background-image: 
+        linear-gradient(45deg, var(--maroon) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--maroon) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--maroon) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--maroon) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.1;
+}
+
+.batik-top {
+    top: 0;
+}
+
+.batik-bottom {
+    bottom: 0;
+    transform: rotate(180deg);
+}
+
+/* Kontainer Slide */
+.slides-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    z-index: 1;
+}
+
+.slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    z-index: 2;
+}
+
+.slide-content {
+    width: 100%;
+    max-width: 800px;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.slide-inner {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 
+        0 10px 30px rgba(139, 0, 0, 0.15),
+        0 0 0 1px rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.slide-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, var(--maroon), var(--dark-purple), var(--jawa-gold));
+    border-radius: 20px 20px 0 0;
+}
+
+/* Slide 1: Nama Pasangan */
+.couple-names {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.name-jawa {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--dark-purple);
+    margin-bottom: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.name-main {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3.2rem;
+    color: var(--maroon);
+    margin: 10px 0;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.and-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.and-symbol .circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--jawa-gold);
+    margin: 0 15px;
+}
+
+.and-symbol span {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.5rem;
+    color: var(--dark-purple);
+    font-weight: 700;
+}
+
+.engagement-info {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.subtitle {
+    font-size: 1.8rem;
+    color: var(--dark-purple);
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+}
+
+.date {
+    font-size: 1.5rem;
+    color: var(--jawa-brown);
+    font-weight: 500;
+    background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.2), transparent);
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* Slide 2: Nama Tamu */
+.guest-section {
+    text-align: center;
+}
+
+.guest-card {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.05), rgba(74, 35, 90, 0.05));
+    border-radius: 15px;
+    padding: 25px;
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.guest-icon {
+    font-size: 3rem;
+    color: var(--dark-purple);
+    margin-right: 20px;
+}
+
+.guest-name-container {
+    text-align: left;
+}
+
+.guest-label {
+    font-size: 1rem;
+    color: var(--jawa-brown);
+    margin-bottom: 5px;
+}
+
+.guest-name {
+    font-size: 2.2rem;
+    color: var(--maroon);
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+}
+
+.invitation-message {
+    background-color: rgba(167, 255, 235, 0.2);
+    border-left: 4px solid var(--jawa-green);
+    padding: 20px;
+    border-radius: 0 10px 10px 0;
+    margin: 30px 0;
+    text-align: left;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--jawa-brown);
+}
+
+/* Slide 3: Waktu dan Tempat */
+.time-place-section {
+    text-align: center;
+}
+
+.time-card, .place-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 25px 0;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(139, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.time-card:hover, .place-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(139, 0, 0, 0.1);
+}
+
+.time-icon, .place-icon {
+    font-size: 2.5rem;
+    color: var(--maroon);
+    margin-right: 20px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.time-details .day {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--dark-purple);
+    margin-bottom: 5px;
+}
+
+.time-details .date {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--maroon);
+    margin-bottom: 5px;
+}
+
+.time-details .time {
+    font-size: 1.2rem;
+    color: var(--jawa-brown);
+    font-weight: 500;
+}
+
+.place-details .place-name {
+    font-size: 1.8rem;
+    color: var(--maroon);
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.place-details .place-address {
+    font-size: 1.1rem;
+    color: var(--jawa-brown);
+}
+
+/* Dekorasi bunga */
+.floral-decoration {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.flower {
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle at 30% 30%, var(--jawa-gold), var(--maroon));
+    border-radius: 50% 50% 50% 0;
+    margin: 0 10px;
+    transform: rotate(45deg);
+    position: relative;
+}
+
+.flower::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    background-color: var(--dark-purple);
+    border-radius: 50%;
+}
+
+/* Slide 4: Peta Lokasi */
+.location-section {
+    text-align: center;
+}
+
+.map-container {
+    margin: 25px 0;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.map-placeholder {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.1), rgba(74, 35, 90, 0.1));
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--dark-purple);
+}
+
+.map-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: var(--maroon);
+}
+
+.map-placeholder p {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.address-details {
+    background-color: rgba(212, 175, 55, 0.05);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 25px;
+    text-align: left;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.address-details h3 {
+    color: var(--dark-purple);
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.address-details h3 i {
+    margin-right: 10px;
+    color: var(--maroon);
+}
+
+.address-details p {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    color: var(--jawa-brown);
+    line-height: 1.5;
+}
+
+.address-details p i {
+    margin-right: 10px;
+    color: var(--dark-purple);
+    min-width: 20px;
+    margin-top: 3px;
+}
+
+/* Slide 5: Konfirmasi */
+.confirmation-section {
+    text-align: center;
+}
+
+.prayer-message {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.05), rgba(167, 255, 235, 0.1));
+    border-radius: 15px;
+    padding: 25px;
+    margin: 25px 0;
+    text-align: left;
+    border: 1px solid rgba(74, 35, 90, 0.1);
+}
+
+.prayer-message p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: var(--jawa-brown);
+}
+
+.prayer-message span {
+    color: var(--maroon);
+    font-weight: 600;
+}
+
+.jawa-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--dark-purple);
+    font-weight: 500;
+    text-align: center;
+    margin: 15px 0;
+    padding: 15px;
+    background-color: rgba(212, 175, 55, 0.05);
+    border-radius: 10px;
+}
+
+.confirmation-form {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 25px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(139, 0, 0, 0.1);
+    text-align: left;
+}
+
+.confirmation-form h3 {
+    color: var(--dark-purple);
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.confirmation-form h3 i {
+    margin-right: 10px;
+    color: var(--maroon);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--dark-purple);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.form-group label i {
+    margin-right: 8px;
+    color: var(--maroon);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid rgba(139, 0, 0, 0.2);
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: var(--jawa-brown);
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--maroon);
+    box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+}
+
+.form-buttons {
+    margin-top: 25px;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, var(--maroon), var(--dark-purple));
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-btn i {
+    margin-right: 10px;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, var(--dark-maroon), var(--light-purple));
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(139, 0, 0, 0.2);
+}
+
+.form-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+    display: none;
+}
+
+.form-message.success {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--jawa-green);
+    border: 1px solid rgba(46, 125, 50, 0.3);
+    display: block;
+}
+
+.form-message.error {
+    background-color: rgba(139, 0, 0, 0.1);
+    color: var(--maroon);
+    border: 1px solid rgba(139, 0, 0, 0.3);
+    display: block;
+}
+
+.closing-note {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--jawa-brown);
+    font-size: 1.1rem;
+}
+
+.couple-signature {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    color: var(--maroon);
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* Elemen Umum */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--dark-purple);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.instruction {
+    margin-top: 30px;
+    text-align: center;
+    color: var(--jawa-brown);
+    font-size: 1rem;
+}
+
+.scroll-icon {
+    margin-top: 10px;
+    animation: bounce 2s infinite;
+    color: var(--maroon);
+    font-size: 1.5rem;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Kontrol Audio */
+.audio-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.music-btn {
+    background: linear-gradient(135deg, var(--dark-purple), var(--maroon));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.music-btn i {
+    margin-right: 8px;
+}
+
+.music-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+}
+
+/* Indikator Slide */
+.slide-indicators {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    z-index: 1000;
+    background-color: rgba(255, 249, 240, 0.8);
+    padding: 10px 15px;
+    border-radius: 50px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(139, 0, 0, 0.2);
+    margin: 0 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background-color: var(--maroon);
+    transform: scale(1.2);
+}
+
+/* Tombol Navigasi */
+.nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(139, 0, 0, 0.8);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn:hover {
+    background-color: var(--maroon);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-btn {
+    left: 20px;
+}
+
+.next-btn {
+    right: 20px;
+}
+
+/* Loading Spinner */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--light-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(139, 0, 0, 0.1);
+    border-top: 5px solid var(--maroon);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: var(--dark-purple);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Responsif untuk HP (Potret 16:9) */
+@media (max-width: 768px) {
+    .slide-inner {
+        padding: 20px;
+        width: 95%;
+        height: auto;
+        max-height: 85vh;
+        overflow-y: auto;
     }
     
-    // Fungsi untuk mendapatkan nama dari sessionStorage atau URL
-    function getGuestName() {
-        // Coba ambil dari sessionStorage dulu
-        let guestName = sessionStorage.getItem('guestName');
-        
-        if (!guestName) {
-            // Coba dari parameter URL
-            const urlParams = new URLSearchParams(window.location.search);
-            let rawName = urlParams.get('nama') || urlParams.get('name') || urlParams.get('to');
-            
-            // Jika tidak ada dari parameter, coba dari path setelah slash
-            if (!rawName) {
-                let path = window.location.pathname;
-                // Hapus "/Diva-Eka-together/" dari path
-                path = path.replace('/Diva-Eka-together/', '');
-                path = path.replace('/Diva-Eka-together', '');
-                path = path.replace('/', '');
-                
-                if (path) {
-                    path = decodeURIComponent(path);
-                    path = path.replace('.html', '');
-                    rawName = path;
-                }
-            }
-            
-            // Format nama jika ada
-            if (rawName) {
-                guestName = formatName(rawName);
-            } else {
-                guestName = "Keluarga & Sahabat";
-            }
-            
-            // Simpan di sessionStorage
-            sessionStorage.setItem('guestName', guestName);
-        }
-        
-        return guestName;
+    .name-jawa {
+        font-size: 1.2rem;
     }
     
-    // Fungsi untuk mengatur nama tamu di seluruh halaman
-    function setupGuestName() {
-        const guestName = getGuestName();
-        
-        console.log('Setting guest name to:', guestName);
-        
-        // Update di Slide 2 (Undangan Untuk)
-        if (guestNameElement) {
-            guestNameElement.textContent = guestName;
-        }
-        
-        // Update di Slide 5 (Konfirmasi)
-        if (confirmGuestName) {
-            confirmGuestName.textContent = guestName;
-        }
-        
-        // Update judul halaman
-        document.title = `Undangan Pertunangan - Untuk ${guestName}`;
-        
-        return guestName;
+    .name-main {
+        font-size: 2.2rem;
     }
     
-    // Fungsi untuk mengatur nama di form (dipanggil saat slide berubah ke slide 5)
-    function setupFormName() {
-        const guestName = getGuestName();
-        const nameInput = document.getElementById('name');
-        
-        if (nameInput && !nameInput.value) {
-            nameInput.value = guestName;
-        }
+    .section-title {
+        font-size: 1.5rem;
     }
     
-    // Fungsi untuk mengganti slide
-    function goToSlide(slideIndex) {
-        // Validasi indeks slide
-        if (slideIndex < 0 || slideIndex >= slides.length) return;
-        
-        // Sembunyikan slide saat ini
-        slides[currentSlide].classList.remove('active');
-        indicators[currentSlide].classList.remove('active');
-        
-        // Tampilkan slide baru
-        currentSlide = slideIndex;
-        slides[currentSlide].classList.add('active');
-        indicators[currentSlide].classList.add('active');
-        
-        // Scroll ke atas slide
-        slides[currentSlide].scrollTop = 0;
-        
-        // Update tombol navigasi
-        updateNavButtons();
-        
-        // Jika slide terakhir, isi nama tamu di form
-        if (currentSlide === 4) {
-            setupFormName();
-        }
+    .date {
+        font-size: 1.2rem;
     }
     
-    // Fungsi untuk update tombol navigasi
-    function updateNavButtons() {
-        if (prevBtn) {
-            prevBtn.style.display = currentSlide === 0 ? 'none' : 'flex';
-        }
-        if (nextBtn) {
-            nextBtn.style.display = currentSlide === slides.length - 1 ? 'none' : 'flex';
-        }
+    .guest-name {
+        font-size: 1.8rem;
     }
     
-    // Fungsi untuk slide berikutnya
-    function nextSlide() {
-        if (currentSlide < slides.length - 1) {
-            goToSlide(currentSlide + 1);
-        }
+    .time-details .date {
+        font-size: 1.5rem;
     }
     
-    // Fungsi untuk slide sebelumnya
-    function prevSlide() {
-        if (currentSlide > 0) {
-            goToSlide(currentSlide - 1);
-        }
+    .place-details .place-name {
+        font-size: 1.5rem;
     }
     
-    // Fungsi untuk toggle musik
-    function toggleMusic() {
-        isMusicPlaying = !isMusicPlaying;
-        
-        if (isMusicPlaying) {
-            backgroundMusic.play().catch(e => {
-                console.log("Autoplay prevented:", e);
-                // Tampilkan instruksi untuk memutar musik
-                musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Klik untuk memutar</span>';
-                musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
-                isMusicPlaying = false;
-            });
-            
-            if (isMusicPlaying) {
-                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i><span>Musik: ON</span>';
-                musicToggle.style.background = 'linear-gradient(135deg, var(--dark-purple), var(--maroon))';
-            }
-        } else {
-            backgroundMusic.pause();
-            musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Musik: OFF</span>';
-            musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
-        }
+    .couple-signature {
+        font-size: 1.5rem;
     }
     
-    // Fungsi untuk handle swipe/touch
-    let touchStartY = 0;
-    let touchEndY = 0;
-    
-    function handleTouchStart(e) {
-        touchStartY = e.changedTouches[0].screenY;
+    .nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
     }
     
-    function handleTouchEnd(e) {
-        touchEndY = e.changedTouches[0].screenY;
-        handleSwipe();
+    .prev-btn {
+        left: 10px;
     }
     
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const swipeDistance = touchStartY - touchEndY;
-        
-        // Swipe ke atas untuk next slide
-        if (swipeDistance > swipeThreshold && currentSlide < slides.length - 1) {
-            nextSlide();
-        }
-        // Swipe ke bawah untuk prev slide
-        else if (swipeDistance < -swipeThreshold && currentSlide > 0) {
-            prevSlide();
-        }
+    .next-btn {
+        right: 10px;
     }
     
-    // Fungsi untuk submit form konfirmasi
-    async function submitForm(event) {
-        event.preventDefault();
-        
-        if (isSubmitting) return;
-        
-        isSubmitting = true;
-        
-        // Tampilkan loading
-        const submitBtn = attendanceForm.querySelector('.submit-btn');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-        submitBtn.disabled = true;
-        
-        // Kumpulkan data form
-        const formData = new FormData(attendanceForm);
-        const data = {
-            nama: formData.get('name'),
-            jumlah: formData.get('attendance'),
-            pesan: formData.get('message') || '',
-            timestamp: new Date().toISOString(),
-            halaman: window.location.href
-        };
-        
-        try {
-            // Kirim data ke Google Apps Script
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-            
-            // Tampilkan pesan sukses
-            showFormMessage('Konfirmasi kehadiran berhasil dikirim. Terima kasih!', 'success');
-            
-            // Reset form tapi biarkan nama tetap
-            document.getElementById('attendance').value = '';
-            document.getElementById('message').value = '';
-            
-        } catch (error) {
-            console.error('Error:', error);
-            showFormMessage('Maaf, terjadi kesalahan. Silakan coba lagi.', 'error');
-        } finally {
-            // Reset button state
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
-            isSubmitting = false;
-        }
+    .music-btn {
+        padding: 8px 15px;
+        font-size: 0.8rem;
     }
     
-    // Fungsi untuk menampilkan pesan form
-    function showFormMessage(message, type) {
-        if (!formMessage) return;
-        
-        formMessage.textContent = message;
-        formMessage.className = `form-message ${type}`;
-        formMessage.style.display = 'block';
-        
-        // Sembunyikan pesan setelah 5 detik
-        setTimeout(() => {
-            formMessage.style.display = 'none';
-        }, 5000);
+    .map-frame iframe {
+        height: 200px;
     }
     
-    // Fungsi untuk simulasi loading
-    function simulateLoading() {
-        if (!loading) return;
-        
-        setTimeout(() => {
-            loading.style.opacity = '0';
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 500);
-        }, 1000);
+    .and-symbol span {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .slide-inner {
+        padding: 15px;
     }
     
-    // Inisialisasi event listeners
-    function initEventListeners() {
-        // Tombol navigasi
-        if (prevBtn) {
-            prevBtn.addEventListener('click', prevSlide);
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', nextSlide);
-        }
-        
-        // Indikator slide
-        indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => goToSlide(index));
-        });
-        
-        // Kontrol musik
-        if (musicToggle) {
-            musicToggle.addEventListener('click', toggleMusic);
-        }
-        
-        // Touch events untuk swipe
-        document.addEventListener('touchstart', handleTouchStart);
-        document.addEventListener('touchend', handleTouchEnd);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                prevSlide();
-            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
-                nextSlide();
-            }
-        });
-        
-        // Wheel event untuk scroll
-        let isScrolling = false;
-        document.addEventListener('wheel', (e) => {
-            if (isScrolling) return;
-            
-            isScrolling = true;
-            
-            if (e.deltaY > 0) {
-                nextSlide();
-            } else if (e.deltaY < 0) {
-                prevSlide();
-            }
-            
-            setTimeout(() => {
-                isScrolling = false;
-            }, 800);
-        });
-        
-        // Form submission
-        if (attendanceForm) {
-            attendanceForm.addEventListener('submit', submitForm);
-        }
+    .name-main {
+        font-size: 1.8rem;
     }
     
-    // Inisialisasi aplikasi
-    function initApp() {
-        // Sembunyikan loading
-        simulateLoading();
-        
-        // Setup nama tamu
-        setupGuestName();
-        
-        // Setup event listeners
-        initEventListeners();
-        
-        // Update tombol navigasi
-        updateNavButtons();
-        
-        // Coba mulai musik
-        setTimeout(() => {
-            if (isMusicPlaying) {
-                backgroundMusic.play().catch(e => {
-                    console.log("Autoplay prevented, waiting for user interaction");
-                    // Update tombol musik
-                    musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Klik untuk putar musik</span>';
-                    musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
-                    isMusicPlaying = false;
-                });
-            }
-        }, 500);
-        
-        // Event listener untuk memulai musik setelah interaksi pengguna
-        document.body.addEventListener('click', function initMusicOnInteraction() {
-            if (!isMusicPlaying) {
-                backgroundMusic.play().then(() => {
-                    isMusicPlaying = true;
-                    musicToggle.innerHTML = '<i class="fas fa-volume-up"></i><span>Musik: ON</span>';
-                    musicToggle.style.background = 'linear-gradient(135deg, var(--dark-purple), var(--maroon))';
-                }).catch(e => {
-                    console.log("Still blocked:", e);
-                });
-            }
-        }, { once: true });
+    .guest-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
     }
     
-    // Jalankan inisialisasi aplikasi
-    initApp();
-});
+    .guest-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .guest-name-container {
+        text-align: center;
+    }
+    
+    .time-card, .place-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .time-icon, .place-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .address-details p {
+        font-size: 0.9rem;
+    }
+    
+    .jawa-text {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}
+
+/* Tambahan untuk form note */
+.form-note {
+    background-color: rgba(212, 175, 55, 0.1);
+    border-left: 3px solid var(--jawa-gold);
+    padding: 10px 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: var(--jawa-brown);
+}
+
+.form-note i {
+    color: var(--maroon);
+    margin-right: 8px;
+}
+
+.form-note p {
+    margin: 0;
+}
