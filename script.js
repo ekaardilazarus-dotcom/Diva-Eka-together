@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSubmitting = false;
     
     // URL Google Apps Script (ganti dengan URL Anda setelah deploy)
-    const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyWFnx1sPlAsSRNzAzYlLdfdNtwlOlxD9UZg_c71Lg6Xjf0sVI15n1l17wzGc3LiqDN/exec';
     
     // Fungsi untuk mendapatkan parameter URL
     function getQueryParam(name) {
