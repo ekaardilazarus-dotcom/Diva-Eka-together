@@ -28,6 +28,34 @@ document.addEventListener('DOMContentLoaded', function() {
         return urlParams.get(name);
     }
 
+     // Fungsi untuk format nama dengan kapital setiap kata (konsisten dengan HTML)
+    function formatName(name) {
+        if (!name || typeof name !== 'string') return '';
+        
+        // Ubah ke huruf kecil dulu, lalu kapitalkan setiap kata
+        return name.toLowerCase()
+            .split(/[\s\-_\+\.]+/) // Pisah berdasarkan spasi, -, _, +, atau .
+            .map(word => {
+                // Skip kata penghubung yang pendek (biarkan huruf kecil)
+                const shortWords = ['di', 'ke', 'dari', 'dan', 'atau', 'yang', 'untuk', 'pada', 'dengan'];
+                if (shortWords.includes(word)) {
+                    return word;
+                }
+                
+                // Handle nama dengan apostrof (contoh: O'Brian)
+                if (word.includes("'")) {
+                    return word.split("'")
+                        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                        .join("'");
+                }
+                
+                // Kapitalkan kata biasa
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+            .join(' ')
+            .trim();
+    }
+    
      // Fungsi untuk mendapatkan nama dari URL atau path
     function getGuestNameFromURL() {
         // Coba ambil dari sessionStorage dulu
@@ -90,6 +118,37 @@ document.addEventListener('DOMContentLoaded', function() {
         return guestName;
     }
 
+     // Fungsi untuk mendapatkan nama tamu dari sessionStorage
+    function getGuestName() {
+        // Ambil dari sessionStorage (sudah di-set oleh script di HTML)
+        let guestName = sessionStorage.getItem('guestName');
+        
+        // Jika tidak ada, gunakan default
+        if (!guestName) {
+            guestName = "Keluarga & Sahabat";
+            sessionStorage.setItem('guestName', guestName);
+        }
+        
+        return guestName;
+    }
+    
+    // Fungsi untuk mengatur nama tamu (dipanggil saat slide berubah ke slide 5)
+    function setupFormName() {
+        const guestName = getGuestName();
+        const nameInput = document.getElementById('name');
+        
+        if (nameInput && !nameInput.value) {
+            nameInput.value = guestName;
+        }
+        
+        // Update confirm guest name di slide 5 jika belum
+        const confirmElement = document.getElementById('confirm-guest-name');
+        if (confirmElement && confirmElement.textContent === 'Saudara/i') {
+            confirmElement.textContent = guestName;
+        }
+    }
+
+    
      // Fungsi untuk mengatur nama tamu
     function setupGuestName() {
         const guestName = getGuestNameFromURL();
