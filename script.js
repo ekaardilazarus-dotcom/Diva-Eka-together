@@ -19,16 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let isMusicPlaying = true;
     let isSubmitting = false;
     
-    // URL Google Apps Script (ganti dengan URL Anda setelah deploy)
+    // URL Google Apps Script
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyWFnx1sPlAsSRNzAzYlLdfdNtwlOlxD9UZg_c71Lg6Xjf0sVI15n1l17wzGc3LiqDN/exec';
     
-    // Fungsi untuk mendapatkan parameter URL
-    function getQueryParam(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
-
-     // Fungsi untuk format nama dengan kapital setiap kata (konsisten dengan HTML)
+    // Fungsi untuk format nama dengan kapital setiap kata
     function formatName(name) {
         if (!name || typeof name !== 'string') return '';
         
@@ -56,58 +50,35 @@ document.addEventListener('DOMContentLoaded', function() {
             .trim();
     }
     
-     // Fungsi untuk mendapatkan nama dari URL atau path
-    function getGuestNameFromURL() {
+    // Fungsi untuk mendapatkan nama dari sessionStorage atau URL
+    function getGuestName() {
         // Coba ambil dari sessionStorage dulu
         let guestName = sessionStorage.getItem('guestName');
         
         if (!guestName) {
-            // Fungsi untuk ambil parameter dari URL
-            function getUrlParameter(name) {
-                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-                var results = regex.exec(location.search);
-                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-            }
+            // Coba dari parameter URL
+            const urlParams = new URLSearchParams(window.location.search);
+            let rawName = urlParams.get('nama') || urlParams.get('name') || urlParams.get('to');
             
-            // Fungsi untuk ambil nama dari path setelah slash
-            function getNameFromPath() {
-                var path = window.location.pathname;
+            // Jika tidak ada dari parameter, coba dari path setelah slash
+            if (!rawName) {
+                let path = window.location.pathname;
                 // Hapus "/Diva-Eka-together/" dari path
                 path = path.replace('/Diva-Eka-together/', '');
                 path = path.replace('/Diva-Eka-together', '');
                 path = path.replace('/', '');
                 
-                // Decode URL dan hapus ekstensi .html jika ada
                 if (path) {
                     path = decodeURIComponent(path);
                     path = path.replace('.html', '');
-                    path = path.replace(/%20/g, ' ');
-                    path = path.replace(/\+/g, ' ');
-                    
-                    // Jika ada tanda "-" ganti dengan spasi
-                    path = path.replace(/-/g, ' ');
-                    
-                    // Capitalize setiap kata
-                    if (path) {
-                        return path.split(' ')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                            .join(' ');
-                    }
+                    rawName = path;
                 }
-                return '';
             }
             
-            // Coba dari parameter URL terlebih dahulu
-            guestName = getUrlParameter('nama') || getUrlParameter('name') || getUrlParameter('to');
-            
-            // Jika tidak ada dari parameter, coba dari path
-            if (!guestName) {
-                guestName = getNameFromPath();
-            }
-            
-            // Jika masih tidak ada, gunakan default
-            if (!guestName) {
+            // Format nama jika ada
+            if (rawName) {
+                guestName = formatName(rawName);
+            } else {
                 guestName = "Keluarga & Sahabat";
             }
             
@@ -117,41 +88,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return guestName;
     }
-
-     // Fungsi untuk mendapatkan nama tamu dari sessionStorage
-    function getGuestName() {
-        // Ambil dari sessionStorage (sudah di-set oleh script di HTML)
-        let guestName = sessionStorage.getItem('guestName');
-        
-        // Jika tidak ada, gunakan default
-        if (!guestName) {
-            guestName = "Keluarga & Sahabat";
-            sessionStorage.setItem('guestName', guestName);
-        }
-        
-        return guestName;
-    }
     
-    // Fungsi untuk mengatur nama tamu (dipanggil saat slide berubah ke slide 5)
-    function setupFormName() {
-        const guestName = getGuestName();
-        const nameInput = document.getElementById('name');
-        
-        if (nameInput && !nameInput.value) {
-            nameInput.value = guestName;
-        }
-        
-        // Update confirm guest name di slide 5 jika belum
-        const confirmElement = document.getElementById('confirm-guest-name');
-        if (confirmElement && confirmElement.textContent === 'Saudara/i') {
-            confirmElement.textContent = guestName;
-        }
-    }
-
-    
-     // Fungsi untuk mengatur nama tamu
+    // Fungsi untuk mengatur nama tamu di seluruh halaman
     function setupGuestName() {
-        const guestName = getGuestNameFromURL();
+        const guestName = getGuestName();
+        
+        console.log('Setting guest name to:', guestName);
         
         // Update di Slide 2 (Undangan Untuk)
         if (guestNameElement) {
@@ -166,27 +108,122 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update judul halaman
         document.title = `Undangan Pertunangan - Untuk ${guestName}`;
         
-        // Pre-fill nama di form jika input tersedia
-        if (nameInput && !nameInput.value) {
-            nameInput.value = guestName;
-        }
-        
         return guestName;
     }
     
-    // Inisialisasi nama tamu dari URL
-    function initializeGuestName() {
-        const guestName = getQueryParam('nama') || 'Keluarga & Sahabat';
-        guestNameElement.textContent = guestName;
-        confirmGuestName.textContent = guestName;
-        
-        // Simpan nama tamu di sessionStorage untuk digunakan di form
-        sessionStorage.setItem('guestName', guestName);
-        
-        // Pre-fill nama di form jika ada
+    // Fungsi untuk mengatur nama di form (dipanggil saat slide berubah ke slide 5)
+    function setupFormName() {
+        const guestName = getGuestName();
         const nameInput = document.getElementById('name');
+        
         if (nameInput && !nameInput.value) {
             nameInput.value = guestName;
+        }
+    }
+    
+    // FUNGSI BARU: Coba mulai musik dengan berbagai strategi
+    function startBackgroundMusic() {
+        if (!backgroundMusic) return;
+        
+        // Set volume (50% agar tidak terlalu keras)
+        backgroundMusic.volume = 0.5;
+        
+        // Coba play musik
+        const playPromise = backgroundMusic.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    // Musik berhasil diputar
+                    console.log('Musik berhasil dimulai');
+                    isMusicPlaying = true;
+                    updateMusicButton();
+                })
+                .catch(error => {
+                    // Autoplay diblokir oleh browser
+                    console.log('Autoplay diblokir:', error);
+                    isMusicPlaying = false;
+                    updateMusicButton();
+                    
+                    // Tampilkan instruksi
+                    showMusicInstruction();
+                });
+        }
+    }
+    
+    // FUNGSI BARU: Update tampilan tombol musik
+    function updateMusicButton() {
+        if (!musicToggle) return;
+        
+        if (isMusicPlaying) {
+            musicToggle.innerHTML = '<i class="fas fa-volume-up"></i><span>Musik: ON</span>';
+            musicToggle.style.background = 'linear-gradient(135deg, var(--dark-purple), var(--maroon))';
+        } else {
+            musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Musik: OFF</span>';
+            musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
+        }
+    }
+    
+    // FUNGSI BARU: Tampilkan instruksi musik
+    function showMusicInstruction() {
+        // Tambahkan tooltip atau pesan
+        const musicTooltip = document.createElement('div');
+        musicTooltip.className = 'music-tooltip';
+        musicTooltip.innerHTML = '<p><i class="fas fa-info-circle"></i> Klik tombol musik untuk memutar</p>';
+        musicTooltip.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(139, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            animation: fadeIn 0.5s ease;
+        `;
+        
+        document.body.appendChild(musicTooltip);
+        
+        // Hapus setelah 5 detik
+        setTimeout(() => {
+            if (musicTooltip.parentNode) {
+                musicTooltip.style.opacity = '0';
+                musicTooltip.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    if (musicTooltip.parentNode) {
+                        musicTooltip.parentNode.removeChild(musicTooltip);
+                    }
+                }, 500);
+            }
+        }, 5000);
+    }
+    
+    // Fungsi untuk toggle musik
+    function toggleMusic() {
+        if (!backgroundMusic) return;
+        
+        isMusicPlaying = !isMusicPlaying;
+        
+        if (isMusicPlaying) {
+            // Coba play musik
+            const playPromise = backgroundMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log('Musik dimulai setelah klik');
+                        updateMusicButton();
+                    })
+                    .catch(error => {
+                        console.log('Gagal memutar musik:', error);
+                        isMusicPlaying = false;
+                        updateMusicButton();
+                    });
+            }
+        } else {
+            backgroundMusic.pause();
+            updateMusicButton();
         }
     }
     
@@ -212,18 +249,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Jika slide terakhir, isi nama tamu di form
         if (currentSlide === 4) {
-            const savedName = sessionStorage.getItem('guestName');
-            const nameInput = document.getElementById('name');
-            if (nameInput && !nameInput.value && savedName) {
-                nameInput.value = savedName;
-            }
+            setupFormName();
         }
     }
     
     // Fungsi untuk update tombol navigasi
     function updateNavButtons() {
-        prevBtn.style.display = currentSlide === 0 ? 'none' : 'flex';
-        nextBtn.style.display = currentSlide === slides.length - 1 ? 'none' : 'flex';
+        if (prevBtn) {
+            prevBtn.style.display = currentSlide === 0 ? 'none' : 'flex';
+        }
+        if (nextBtn) {
+            nextBtn.style.display = currentSlide === slides.length - 1 ? 'none' : 'flex';
+        }
     }
     
     // Fungsi untuk slide berikutnya
@@ -237,21 +274,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function prevSlide() {
         if (currentSlide > 0) {
             goToSlide(currentSlide - 1);
-        }
-    }
-    
-    // Fungsi untuk toggle musik
-    function toggleMusic() {
-        isMusicPlaying = !isMusicPlaying;
-        
-        if (isMusicPlaying) {
-            backgroundMusic.play().catch(e => console.log("Autoplay prevented:", e));
-            musicToggle.innerHTML = '<i class="fas fa-volume-up"></i><span>Musik: ON</span>';
-            musicToggle.style.background = 'linear-gradient(135deg, var(--dark-purple), var(--maroon))';
-        } else {
-            backgroundMusic.pause();
-            musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Musik: OFF</span>';
-            musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
         }
     }
     
@@ -317,19 +339,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data)
             });
             
-            // Karena no-cors, kita tidak bisa membaca response
             // Tampilkan pesan sukses
             showFormMessage('Konfirmasi kehadiran berhasil dikirim. Terima kasih!', 'success');
             
-            // Reset form
-            attendanceForm.reset();
-            
-            // Pre-fill nama tamu lagi
-            const savedName = sessionStorage.getItem('guestName');
-            const nameInput = document.getElementById('name');
-            if (nameInput && savedName) {
-                nameInput.value = savedName;
-            }
+            // Reset form tapi biarkan nama tetap
+            document.getElementById('attendance').value = '';
+            document.getElementById('message').value = '';
             
         } catch (error) {
             console.error('Error:', error);
@@ -344,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fungsi untuk menampilkan pesan form
     function showFormMessage(message, type) {
+        if (!formMessage) return;
+        
         formMessage.textContent = message;
         formMessage.className = `form-message ${type}`;
         formMessage.style.display = 'block';
@@ -356,19 +373,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fungsi untuk simulasi loading
     function simulateLoading() {
+        if (!loading) return;
+        
         setTimeout(() => {
             loading.style.opacity = '0';
             setTimeout(() => {
                 loading.style.display = 'none';
             }, 500);
-        }, 1500);
+        }, 1000);
     }
     
     // Inisialisasi event listeners
     function initEventListeners() {
         // Tombol navigasi
-        prevBtn.addEventListener('click', prevSlide);
-        nextBtn.addEventListener('click', nextSlide);
+        if (prevBtn) {
+            prevBtn.addEventListener('click', prevSlide);
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', nextSlide);
+        }
         
         // Indikator slide
         indicators.forEach((indicator, index) => {
@@ -376,7 +399,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Kontrol musik
-        musicToggle.addEventListener('click', toggleMusic);
+        if (musicToggle) {
+            musicToggle.addEventListener('click', toggleMusic);
+        }
         
         // Touch events untuk swipe
         document.addEventListener('touchstart', handleTouchStart);
@@ -410,16 +435,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Form submission
-        attendanceForm.addEventListener('submit', submitForm);
+        if (attendanceForm) {
+            attendanceForm.addEventListener('submit', submitForm);
+        }
+        
+        // Event listener untuk memulai musik setelah interaksi pengguna
+        document.body.addEventListener('click', function initMusicOnInteraction() {
+            if (!isMusicPlaying) {
+                startBackgroundMusic();
+            }
+        }, { once: true });
+        
+        // Coba mulai musik saat halaman selesai dimuat
+        window.addEventListener('load', function() {
+            setTimeout(startBackgroundMusic, 500);
+        });
     }
     
     // Inisialisasi aplikasi
     function initApp() {
-        // Sembunyikan loading setelah beberapa saat
+        // Sembunyikan loading
         simulateLoading();
         
-        // Inisialisasi nama tamu
-        initializeGuestName();
+        // Setup nama tamu
+        setupGuestName();
         
         // Setup event listeners
         initEventListeners();
@@ -427,29 +466,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update tombol navigasi
         updateNavButtons();
         
-        // Mulai musik secara otomatis
-        setTimeout(() => {
-            if (isMusicPlaying) {
-                backgroundMusic.play().catch(e => {
-                    console.log("Autoplay prevented, waiting for user interaction");
-                    // Tampilkan instruksi untuk memutar musik
-                    musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i><span>Klik untuk putar musik</span>';
-                    musicToggle.style.background = 'linear-gradient(135deg, #666, #888)';
-                    isMusicPlaying = false;
-                });
-            }
-        }, 1000);
+        // Update tombol musik
+        updateMusicButton();
         
-        // Tambahkan event listener untuk memulai musik setelah interaksi pengguna
-        document.body.addEventListener('click', function initMusicOnInteraction() {
-            if (!isMusicPlaying) {
-                backgroundMusic.play();
-                isMusicPlaying = true;
-                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i><span>Musik: ON</span>';
-                musicToggle.style.background = 'linear-gradient(135deg, var(--dark-purple), var(--maroon))';
-            }
-            document.body.removeEventListener('click', initMusicOnInteraction);
-        }, { once: true });
+        // Coba mulai musik segera setelah inisialisasi
+        setTimeout(startBackgroundMusic, 300);
     }
     
     // Jalankan inisialisasi aplikasi
